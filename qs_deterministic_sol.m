@@ -18,3 +18,6 @@ g_LasRAI1 = 0.002;
 s_LasRAI1 = 0.1;
 [t,x]=ode45(@qs_deterministic,[0 120],[0 0 0 0 0 0]);
 plot(t,x)
+xlabel('Time')
+ylabel('Concentration')
+legend('lasR', 'LasR', 'lasI', 'LasI', 'AI1', 'LasRAI1')
