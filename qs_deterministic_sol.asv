@@ -16,18 +16,18 @@ g_AI1 = 0.001;
 k_LasRAI1 = 3;
 g_LasRAI1 = 0.002;
 s_LasRAI1 = 0.1;
-d = 30;
-N = 100;
-d_away = 0.0002;
-g_AI1_ext = 0.0001;
-a_p = 0.01;
-b_p = 130/b;
-K2 = 20;
-h2 = -2;
-g_p = 0.001;
-k_P = b*g_P;
-g_P = 0.001;
-[t,x]=ode45(@qs_deterministic,[0 50],[20 10 20 10 20 10 20 10 20]);
+d = 0;
+N = 0;
+d_away = 0;
+g_AI1_ext = 0;
+a_p = 0;
+b_p = 0;
+K2 = 0;
+h2 = 0;
+g_p = 0;
+k_P = 0;
+g_P = 0;
+[t,x]=ode45(@qs_deterministic,[0 120],[0 0 0 0 0 0 0 0 0]);
 plot(t,x)
 xlabel('Time')
 ylabel('Concentration')
