@@ -7,7 +7,9 @@ import matplotlib.cm as cm
 from numba import jit
 
 # Default parameters
-N = 500           # 0
+#-----------------------------------------------------------------------------------------------------------------------
+
+N = 10            # 0
 k_lasR = 0.004    # 1
 g_lasR = 0.002    # 2
 k_LasR = 0.4      # 3
@@ -35,41 +37,48 @@ g_LasRAI1 = 0.14  # 24
 d = 0.8           # 25
 d_away = 1.2      # 26
 
-p = np.array([N, k_lasR, g_lasR, k_LasR, g_LasR, a_rsaL, b_rsaL, K1, h1, g_rsaL, k_RsaL, g_RsaL, a_lasI, K2, \
+params = np.array([N, k_lasR, g_lasR, k_LasR, g_LasR, a_rsaL, b_rsaL, K1, h1, g_rsaL, k_RsaL, g_RsaL, a_lasI, K2, \
               h2, g_lasI, k_LasI, g_LasI, k_AI1, g_AI1, g_AI1_ext, u_LasRAI1, s_LasRAI1, g_LasRAI1, d, d_away])
 
+t = [0, 170]
+
+r0 = [1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+# Functions
+#-----------------------------------------------------------------------------------------------------------------------
+
 @jit
-def LasRI_RsaL_qs(t, r, p=p):
+def LasRI_RsaL_qs(t, r, params=params):
 
     lasR, LasR, rsaL, RsaL, lasI, LasI, AI1, AI1_ext, LasRAI1 = r
 
-    N         = p[0]
-    k_lasR    = p[1]
-    g_lasR    = p[2]
-    k_LasR    = p[3]
-    g_LasR    = p[4]
-    a_rsaL    = p[5]
-    b_rsaL    = p[6]
-    K1        = p[7]
-    h1        = p[8]
-    g_rsaL    = p[9]
-    k_RsaL    = p[10]
-    g_RsaL    = p[11]
-    a_lasI    = p[12]
-    b_lasI    = p[13]
-    K2        = p[14]
-    h2        = p[15]
-    g_lasI    = p[16]
-    k_LasI    = p[17]
-    g_LasI    = p[18]
-    k_AI1     = p[19]
-    g_AI1     = p[20]
-    g_AI1_ext = p[21]
-    u_LasRAI1 = p[22]
-    s_LasRAI1 = p[23]
-    g_LasRAI1 = p[24]
-    d         = p[25]
-    d_away    = p[26]
+    N         = params[0]
+    k_lasR    = params[1]
+    g_lasR    = params[2]
+    k_LasR    = params[3]
+    g_LasR    = params[4]
+    a_rsaL    = params[5]
+    b_rsaL    = params[6]
+    K1        = params[7]
+    h1        = params[8]
+    g_rsaL    = params[9]
+    k_RsaL    = params[10]
+    g_RsaL    = params[11]
+    a_lasI    = params[12]
+    b_lasI    = params[13]
+    K2        = params[14]
+    h2        = params[15]
+    g_lasI    = params[16]
+    k_LasI    = params[17]
+    g_LasI    = params[18]
+    k_AI1     = params[19]
+    g_AI1     = params[20]
+    g_AI1_ext = params[21]
+    u_LasRAI1 = params[22]
+    s_LasRAI1 = params[23]
+    g_LasRAI1 = params[24]
+    d         = params[25]
+    d_away    = params[26]
 
     LasRAI1_ = (LasRAI1/K1 )**h1   # Activator
     RsaL_ = (RsaL/K2 )**h2      # Repressor
@@ -86,7 +95,10 @@ def LasRI_RsaL_qs(t, r, p=p):
     
     return np.array([dlasR, dLasR, drsaL, dRsaL, dlasI, dLasI, dAI1, dAI1_ext, dLasRAI1])
 
-def plot(qs_dynamics, action='display'):
+def solve_qs(qs_sys=LasRI_RsaL_qs, t=t, r0=r0, params=params):
+    return solve_ivp(qs_sys, t, r0, args=params)
+
+def plot_det(qs_dynamics, N=N, action='display'):
 
     x = ['lasR', 'LasR', 'rsaL', 'RsaL', 'lasI', 'LasI', 'AI$_1$', 'AI$_{1,ext}$', 'LasR$\cdot$AI$_1$']
     fig = plt.figure(figsize=(12,7))
@@ -98,6 +110,6 @@ def plot(qs_dynamics, action='display'):
     plt.ylabel('Concentration', fontsize=12)
 
     if action == 'save':
-        fig.savefig('qs_dynamics.png')
+        fig.savefig(f'qs_dynamics_{N}.png')
     else:
         return fig

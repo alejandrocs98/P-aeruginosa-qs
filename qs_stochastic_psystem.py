@@ -318,7 +318,7 @@ def multicompartmental_gillespie(N=N, t_max=t_max, b_0=b_0, e_0=e_0, b_update=b_
                         
             h += 1
 
-    print(f'Simulation completed! \n Cells: {N} cells \n Simulation time: {t_max} seconds')
+    print(f'Simulation completed! \n Cells: {N} \n Simulation time: {t_max} seconds')
 
 def load_data(b_file=b_file, e_file=e_file):
 
@@ -327,7 +327,7 @@ def load_data(b_file=b_file, e_file=e_file):
     environment = pd.read_table(e_file, sep='\t', index_col=0)
     return bacteria_grouped, environment
 
-def plot(bacteria_grouped, environment, N=N, action='display'):
+def plot_mcg(bacteria_grouped, environment, N=N, action='display'):
 
     x = ['lasR', 'LasR', 'rsaL', 'RsaL', 'lasI', 'LasI', 'AI1', 'LasRAI1']
     fig_b = plt.figure(figsize=(20,27))
