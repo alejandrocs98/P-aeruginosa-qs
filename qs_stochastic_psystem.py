@@ -336,8 +336,9 @@ def load_data(b_file=b_file, e_file=e_file):
     environment = pd.read_table(e_file, sep='\t', index_col=0)
     return bacteria_grouped, environment
 
-def plot_mcg(bacteria_grouped, environment, N=N, action='display'):
+def plot_mcg(bacteria_grouped, environment, action='display'):
 
+    N = len(bacteria_grouped)
     x = ['lasR', 'LasR', 'rsaL', 'RsaL', 'lasI', 'LasI', 'AI1', 'LasRAI1']
     fig_b = plt.figure(figsize=(20,27))
     subplot = 1
@@ -357,7 +358,7 @@ def plot_mcg(bacteria_grouped, environment, N=N, action='display'):
     plt.grid()
 
     if action == 'save':
-        fig_b.savefig(f'bacteria_{N}.png')
-        fig_e.savefig('environment.png')
+        fig_b.savefig(f'bacteria_{N}.png', bbox_inches='tight')
+        fig_e.savefig('environment.png', bbox_inches='tight')
     else:
         return fig_b, fig_e
