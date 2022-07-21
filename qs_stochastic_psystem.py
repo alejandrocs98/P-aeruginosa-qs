@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt; plt.rc('font', size=16)
 import os
 from numba import jit
 
@@ -10,10 +10,12 @@ from numba import jit
 #-----------------------------------------------------------------------------------------------------------------------
 
 N=10
+# V_cell = 1.8e-9
+# V_ext = 1e-6
 
 t_max=10000
 
-b_0=np.array([1, 1, 1, 1, 1, 1, 1, 1], dtype=np.int32)
+b_0=np.array([0, 0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
 
 e_0=np.array([0], dtype=np.int32)
 
@@ -62,39 +64,39 @@ e_update = np.array([[0],   # + lasR
                      [-1]], # - AI1_ext
             dtype=np.int32)
 
-k_lasR = 0.004    # 0
-g_lasR = 0.002    # 1
-k_LasR = 0.4      # 2
-g_LasR = 0.35     # 3
-a_rsaL = 0.00036  # 4
-b_rsaL = 0.0058   # 5
-K1 = 1.2          # 6
-h1 = 1.4          # 7
-g_rsaL = 0.001    # 8
-k_RsaL = 0.9      # 9
-g_RsaL = 0.2      # 10
-a_lasI = 0.00036  # 11
-b_lasI = 0.0058   # 12
-K2 = 1.4          # 13
-h2 = 1.2          # 14
-g_lasI = 0.001    # 15
-k_LasI = 0.7      # 16
-g_LasI = 0.12     # 17
-k_AI1 = 1         # 18
-g_AI1 = 0.3       # 19
-u_LasRAI1 = 0.05  # 20
-s_LasRAI1 = 0.25  # 21
-g_LasRAI1 = 0.14  # 22
-d = 0.8           # 23
+k_lasR = 1                  # 0
+g_lasR = 0.247              # 1
+k_LasR = 50                 # 2
+g_LasR = 0.027              # 3
+a_rsaL = 0.01             # 4
+b_rsaL = 1.5                # 5
+K1 = 4000                   # 6
+h1 = 1.2                    # 7
+g_rsaL = 0.247              # 8
+k_RsaL = 50                 # 9
+g_RsaL = 0.027              # 10
+a_lasI = 0.01             # 11
+b_lasI = 1.5                # 12
+K2 = 6500                   # 13
+h2 = 1.4                    # 14
+g_lasI = 0.247              # 15
+k_LasI = 50                 # 16
+g_LasI = 0.015              # 17
+k_AI1 = 0.04                # 18
+g_AI1 = 0.008               # 19
+s_LasRAI1 = 10              # 20
+u_LasRAI1 = s_LasRAI1/100   # 21
+g_LasRAI1 = 0.017           # 22
+D = 8                       # 23
 
 params_b = np.array([k_lasR, g_lasR, k_LasR, g_LasR, a_rsaL, b_rsaL, K1, h1, g_rsaL, k_RsaL, g_RsaL, a_lasI, \
-                     b_lasI, K2, h2, g_lasI, k_LasI, g_LasI, k_AI1, g_AI1, u_LasRAI1, s_LasRAI1, g_LasRAI1, d], dtype=np.float32)
+                     b_lasI, K2, h2, g_lasI, k_LasI, g_LasI, k_AI1, g_AI1, s_LasRAI1, u_LasRAI1, g_LasRAI1, D], dtype=np.float32)
 
-g_AI1_ext = 0.8  # 0
-d = 0.8          # 1
-d_away = 1.2     # 2
+g_AI1_ext = 0.057   # 0
+D = 8               # 1
+D_away = 0.01        # 2
 
-params_e = np.array([g_AI1_ext, d, d_away], dtype=np.float32)
+params_e = np.array([g_AI1_ext, D, D_away], dtype=np.float32)
 
 b_file = 'bacteria.tsv'
 e_file = 'environment.tsv'
@@ -128,13 +130,13 @@ def b_rules(x, params_b):
     g_LasI    = params_b[17]
     k_AI1     = params_b[18]
     g_AI1     = params_b[19]
-    u_LasRAI1 = params_b[20]
-    s_LasRAI1 = params_b[21]
+    s_LasRAI1 = params_b[20]
+    u_LasRAI1 = params_b[21]
     g_LasRAI1 = params_b[22]
-    d         = params_b[23]
+    D         = params_b[23]
 
-    LasRAI1_ = (LasRAI1/K1 )**h1
-    RsaL_ = (RsaL/K2 )**h2
+    LasRAI1_ = (LasRAI1/K1)**h1
+    RsaL_ = (RsaL/K2)**h2
 
     propensities[0]  = k_lasR                                                   # + lasR
     propensities[1]  = lasR*g_lasR                                              # - lasR
@@ -152,7 +154,7 @@ def b_rules(x, params_b):
     propensities[13] = LasI*g_LasI                                              # - LasI
     propensities[14] = LasI*k_AI1                                               # + AI1
     propensities[15] = AI1*g_AI1                                                # - AI1
-    propensities[16] = d*AI1                                                    # - AI1 ; + AI1_ext
+    propensities[16] = D*AI1                                                    # - AI1 ; + AI1_ext
     propensities[17] = LasRAI1*g_LasRAI1                                        # - LasRAI1
 
     Stot = propensities.sum()
@@ -168,18 +170,21 @@ def b_rules(x, params_b):
 @jit
 def e_rules(x, params_e):
     
+    V_cell = 1.8e-9
+    V_ext = 1e-6
     AI1_ext = x[0]
     propensities = np.empty(2, dtype=np.float64)
+    V_c = V_cell/V_ext
     
     g_AI1_ext   = params_e[0]
-    d           = params_e[1]
-    d_away      = params_e[2]
+    D           = params_e[1]
+    D_away      = params_e[2]
     
     if AI1_ext == 0:                        
         return 0, 99  # no reaction
     else:
-        propensities[0] = AI1_ext*d                     # + AI1 ; - AI1_ext
-        propensities[1] = AI1_ext*(d_away+g_AI1_ext)    # - AI1_ext
+        propensities[0] = AI1_ext*D*V_c                 # + AI1 ; - AI1_ext
+        propensities[1] = AI1_ext*(D_away+g_AI1_ext)    # - AI1_ext
 
         Stot = propensities.sum()
         U = np.random.rand()

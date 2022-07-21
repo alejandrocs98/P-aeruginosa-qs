@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy.integrate import solve_ivp
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt; plt.rc('font', size=16)
 import matplotlib.cm as cm
 from numba import jit
 
@@ -10,35 +10,35 @@ from numba import jit
 #-----------------------------------------------------------------------------------------------------------------------
 
 N = 10              
-# V_cell = 1.1e-9
-# V_ext = 1e-3
+# V_cell = 1.8e-9
+# V_ext = 1e-6
 
-k_lasR = 1                # 0
+k_lasR = 1                  # 0
 g_lasR = 0.247              # 1
 k_LasR = 50                 # 2
-g_LasR = 0.027                # 3
-a_rsaL = 0.0005               # 4
-b_rsaL = 1.5               # 5
-K1 = 2000                    # 6
+g_LasR = 0.027              # 3
+a_rsaL = 0.01               # 4
+b_rsaL = 1.5                # 5
+K1 = 4000                   # 6
 h1 = 1.2                    # 7
 g_rsaL = 0.247              # 8
-k_RsaL = 50               # 9
+k_RsaL = 50                 # 9
 g_RsaL = 0.027              # 10
-a_lasI = 0.0005               # 11
-b_lasI = 1.5               # 12
-K2 = 5000                    # 13
+a_lasI = 0.01               # 11
+b_lasI = 1.5                # 12
+K2 = 6500                   # 13
 h2 = 1.4                    # 14
 g_lasI = 0.247              # 15
-k_LasI = 50                  # 16
+k_LasI = 50                 # 16
 g_LasI = 0.015              # 17
 k_AI1 = 0.04                # 18
-g_AI1 = 0.005               # 19
+g_AI1 = 0.008               # 19
 g_AI1_ext = 0.057           # 20
 s_LasRAI1 = 10              # 21
 u_LasRAI1 = s_LasRAI1/100   # 22
 g_LasRAI1 = 0.017           # 23
-D = 10                       # 24
-D_away = 0.08              # 25
+D = 8                       # 24
+D_away = 0.1                # 25
 
 params = (k_lasR, g_lasR, k_LasR, g_LasR, a_rsaL, b_rsaL, K1, h1, g_rsaL, k_RsaL, g_RsaL, a_lasI, b_lasI, \
           K2, h2, g_lasI, k_LasI, g_LasI, k_AI1, g_AI1, g_AI1_ext, s_LasRAI1, u_LasRAI1, g_LasRAI1, D, D_away)
@@ -53,8 +53,8 @@ r0 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 @jit
 def LasRI_RsaL_qs(t, r, N, params):
 
-    V_cell = 1.1e-9
-    V_ext = 1e-3
+    V_cell = 1.8e-9
+    V_ext = 1e-6
 
     lasR, LasR, rsaL, RsaL, lasI, LasI, AI1, AI1_ext, LasRAI1 = r
 
@@ -86,8 +86,8 @@ def LasRI_RsaL_qs(t, r, N, params):
     D_away    = params[25]
 
     V_c = V_cell/V_ext
-    LasRAI1_ = (LasRAI1/K1 )**h1
-    RsaL_ = (RsaL/K2 )**h2
+    LasRAI1_ = (LasRAI1/K1)**h1
+    RsaL_ = (RsaL/K2)**h2
     
     dlasR = k_lasR - lasR*g_lasR
     dLasR = lasR*k_LasR + LasRAI1*s_LasRAI1 - AI1*LasR*u_LasRAI1 - LasR*g_LasR
@@ -107,34 +107,57 @@ def solve_qs(qs_sys=LasRI_RsaL_qs, t_span=t_span, r0=r0, N=N, params=params):
 def plot_det(qs_dynamics, N=N, action='display'):
 
     x = ['lasR', 'LasR', 'rsaL', 'RsaL', 'lasI', 'LasI', 'AI$_1$', 'AI$_{1,ext}$', 'LasR$\cdot$AI$_1$']
-    fig = plt.figure(figsize=(10,7))
-    fig.suptitle(f'QS dynamics for {N} cells', fontsize=16)
+    fig = plt.figure(figsize=(9,6))
+    fig.suptitle(f'QS dynamics for {N} cells')
     for i in range(len(x)):
         plt.plot(qs_dynamics.t, qs_dynamics.y[i], lw=2, label=x[i], color=cm.tab10(i))
     plt.grid()
-    plt.legend(loc='center right', bbox_to_anchor=(1.20, 0.50), ncol=1, fancybox=True, shadow=False, fontsize=12)
-    plt.xlabel('Time', fontsize=12)
-    plt.ylabel('Concentration', fontsize=12)
+    # plt.legend(loc='center right', bbox_to_anchor=(1.20, 0.50), ncol=1, fancybox=True, shadow=False, fontsize=12)
+    plt.legend(loc=0, ncol=3, framealpha=0.4, fontsize=14)
+    plt.xlabel('Time (min)')
+    plt.ylabel('Concentration')
 
     if action == 'save':
-        fig.savefig(f'qs_dynamics_{N}.png', bbox_inches='tight')
+        fig.savefig(f'qs_dynamics_{N}.pdf', format='pdf', bbox_inches='tight')
     else:
         return fig
 
 def subplots_det(qs_dynamics, N=N, action='display'):
 
     x = ['lasR', 'LasR', 'rsaL', 'RsaL', 'lasI', 'LasI', 'AI$_1$', 'AI$_{1,ext}$', 'LasR$\cdot$AI$_1$']
-    fig = plt.figure(figsize=(24,24))
-    subplot = 1
-    for i in range(len(x)):
-        plt.subplot(3,3,subplot)
-        plt.plot(qs_dynamics.t, qs_dynamics.y[i], color=cm.tab10(i))
-        plt.xlabel('Time (min)')
-        plt.ylabel(x[i])
-        plt.grid()
-        subplot += 1
+    fig = plt.figure(figsize=(18,12))
+
+    for i in [0,2,4]:
+        plt.subplot(2,2,1)
+        plt.plot(qs_dynamics.t, qs_dynamics.y[i], lw=2, color=cm.tab10(i), label=x[i])
+    plt.legend(loc=0, ncol=1, framealpha=0.4, fontsize=14)
+    plt.xlabel('Time (min)')
+    plt.ylabel('Concentration')
+    plt.grid()
+
+    for i in [1,3,5,8]:
+        plt.subplot(2,2,2)
+        plt.plot(qs_dynamics.t, qs_dynamics.y[i], lw=2, color=cm.tab10(i), label=x[i])
+    plt.legend(loc=0, ncol=2, framealpha=0.4, fontsize=14)
+    plt.xlabel('Time (min)')
+    plt.ylabel('Concentration')
+    plt.grid()
+
+    plt.subplot(2,2,3)
+    plt.plot(qs_dynamics.t, qs_dynamics.y[6], lw=2, color=cm.tab10(6), label=x[6])
+    plt.legend(loc=0, ncol=1, framealpha=0.4, fontsize=14)
+    plt.xlabel('Time (min)')
+    plt.ylabel('Concentration')
+    plt.grid()
+
+    plt.subplot(2,2,4)
+    plt.plot(qs_dynamics.t, qs_dynamics.y[7], lw=2, color=cm.tab10(7), label=x[7])
+    plt.legend(loc=0, ncol=1, framealpha=0.4, fontsize=14)
+    plt.xlabel('Time (min)')
+    plt.ylabel('Concentration')
+    plt.grid()
 
     if action == 'save':
-        fig.savefig(f'qs_dynamics_{N}.png', bbox_inches='tight')
+        fig.savefig(f'qs_dynamics_{N}.pdf', format='pdf', bbox_inches='tight')
     else:
         return fig
