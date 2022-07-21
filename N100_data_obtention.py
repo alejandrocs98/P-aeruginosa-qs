@@ -14,7 +14,7 @@ AI1_ext = np.linspace(0, 80000, 25, dtype=int)
 for i in range(len(AI1_ext)):
     ensemble, time = ensemble_simulation()
     x_means, x_stds, time_ss, x_ss, x_ss_mean, x_ss_std, x_ss_noise = regularized_ensemble_stats(ensemble, time)
-    save_ensemble_ss_stats(x_ss, x_ss_mean, x_ss_std, x_ss_noise, N=N, AI1_ext=AI1_ext)
+    save_ensemble_ss_stats(x_ss, x_ss_mean, x_ss_std, x_ss_noise, N=100, AI1_ext=AI1_ext[i])
     if i == 0:
         plot_ensemble(ensemble, time, x_means, x_stds, AI1_ext=AI1_ext[i], action='save')
         plot_ensamble_ss(time_ss, x_ss, x_ss_mean, x_ss_std, x_ss_noise, AI1_ext=AI1_ext[i], action='save')
