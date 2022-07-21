@@ -12,7 +12,7 @@ x_means, x_stds, time_ss, x_ss, x_ss_mean, x_ss_std, x_ss_noise = regularized_en
 AI1_ext = np.linspace(0, 8500, 10, dtype=int)
 
 for i in range(len(AI1_ext)):
-    ensemble, time = ensemble_simulation()
+    ensemble, time = ensemble_simulation(AI1_ext=AI1_ext[i])
     x_means, x_stds, time_ss, x_ss, x_ss_mean, x_ss_std, x_ss_noise = regularized_ensemble_stats(ensemble, time)
     save_ensemble_ss_stats(x_ss, x_ss_mean, x_ss_std, x_ss_noise, AI1_ext=AI1_ext[i])
     plot_ensemble(ensemble, time, x_means, x_stds, AI1_ext=AI1_ext[i], action='save')

@@ -13,7 +13,7 @@ ensemble_size = 100 #int(0.5e3)
 N = 10
 AI1_ext = 0
 
-t_max = 600
+t_max = 470 #600
 dt_reg = 0.01
 
 x0=np.array([0, 0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
