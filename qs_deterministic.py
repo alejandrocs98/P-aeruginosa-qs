@@ -158,6 +158,6 @@ def subplots_det(qs_dynamics, N=N, action='display'):
     plt.grid()
 
     if action == 'save':
-        fig.savefig(f'qs_dynamics_{N}.pdf', format='pdf', bbox_inches='tight')
+        fig.savefig(f'qs_dynamics_sub_{N}.pdf', format='pdf', bbox_inches='tight')
     else:
         return fig
